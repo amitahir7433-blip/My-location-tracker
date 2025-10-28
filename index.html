@@ -1,71 +1,49 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
-<head>
-  <title>My Location Tracker</title>
-  <style>
-    body {
-      background-color: #e6f7ff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-    }
-    h1 { color: #0066cc; }
-    p { font-size: 18px; color: #333; }
-    button {
-      background-color: #0066cc;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    button:hover { background-color: #004c99; }
-    #output {
-      margin-top: 20px;
-      font-size: 20px;
-      color: #005580;
-    }
-  </style>
-</head>
-<body>
-  <h1>📍 My Location Tracker</h1>
-  <p>Click the button to get your current location.</p>
-  <button onclick="getLocation()">Get Location</button>
+  <head>
+    <title>Live Location Tracker</title>
+    <style>
+      #map {
+        height: 100vh;
+        width: 100%;
+      }
+    </style>
+    <!-- અહીં તારી key નાખવી છે 👇 -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ79Ko-HXM4Tt5S3ZW1s5naMVdnlHo83c"></script>
+  </head>
+  <body>
+    <h2 style="text-align:center;">My Live Location Tracker 🌍</h2>
+    <div id="map"></div>
 
-  <div id="output"></div>
+    <script>
+      function initMap(lat, lng) {
+        const myLocation = { lat: lat, lng: lng };
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 15,
+          center: myLocation,
+        });
+        new google.maps.Marker({
+          position: myLocation,
+          map: map,
+          title: "You are here!",
+        });
+      }
 
-  <script>
-    function getLocation() {
+      function showPosition(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        initMap(lat, lng);
+      }
+
+      function showError(error) {
+        alert("Error: " + error.message);
+      }
+
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition, showError);
       } else {
-        document.getElementById("output").innerHTML = "Geolocation is not supported by this browser.";
+        alert("Geolocation is not supported by this browser.");
       }
-    }
-
-    function showPosition(position) {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-      document.getElementById("output").innerHTML =
-        "Latitude: " + lat + "<br>Longitude: " + lon;
-    }
-
-    function showError(error) {
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          document.getElementById("output").innerHTML = "❌ Permission denied for location.";
-          break;
-        case error.POSITION_UNAVAILABLE:
-          document.getElementById("output").innerHTML = "📡 Location unavailable.";
-          break;
-        case error.TIMEOUT:
-          document.getElementById("output").innerHTML = "⏱️ Request timed out.";
-          break;
-        default:
-          document.getElementById("output").innerHTML = "⚠️ Unknown error.";
-      }
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>
