@@ -1,41 +1,109 @@
-<!-- Permission-help snippet: paste inside <body> near top -->
-<div id="geo-help" style="padding:12px;background:#fff3cd;border:1px solid #ffeeba;border-radius:8px;max-width:720px;margin:12px auto;display:none;">
-  <strong>Permission જોઈએછે</strong>
-  <p id="geo-msg">આ સાઇટ માટે Location allow કરો — જુઓ નીચે સૂચનો.</p>
-  <button onclick="window.location.reload()" style="margin-right:8px;">Try Again</button>
-  <button onclick="showQuickSteps()">How to Allow</button>
-  <div id="geo-steps" style="margin-top:10px;display:none;">
-    <p><strong>Android Chrome:</strong> Lock icon → Site settings → Location → Allow</p>
-    <p><strong>iPhone Safari:</strong> Settings → Privacy → Location Services → Safari Websites → While Using</p>
-    <p><strong>Desktop Chrome:</strong> Lock icon → Site settings → Location → Allow</p>
-  </div>
-</div>
-
-<script>
-function showQuickSteps(){ document.getElementById('geo-steps').style.display='block'; }
-
-function tryGetLocation(){
-  if(!navigator.geolocation){
-    alert('Geolocation supported? No.');
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      // success: hide help
-      document.getElementById('geo-help').style.display='none';
-      // your existing logic to show map/coords
-      console.log('got position', pos);
-    },
-    err => {
-      if(err.code === err.PERMISSION_DENIED){
-        document.getElementById('geo-msg').innerText = 'You have blocked location for this site. Please allow it in your browser settings.';
-        document.getElementById('geo-help').style.display = 'block';
-      } else {
-        document.getElementById('geo-msg').innerText = 'Location error: ' + err.message;
-        document.getElementById('geo-help').style.display = 'block';
-      }
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Location Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f7f9fc;
+      color: #222;
+      padding: 20px;
     }
-  );
-}
-tryGetLocation();
-</script>
+    #map {
+      width: 100%;
+      height: 500px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+    #geo-help {
+      display: none;
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px auto;
+      max-width: 600px;
+      color: #856404;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+  <h2>📍 My Location Tracker</h2>
+  <p>તમારું location જુઓ અને તમારા પરિવાર સાથે શેર કરો.</p>
+
+  <div id="geo-help">
+    <strong>Permission જરૂરી છે</strong>
+    <p id="geo-msg">કૃપા કરીને તમારા browser માં "Allow location" પસંદ કરો.</p>
+    <button onclick="window.location.reload()">ફરી પ્રયાસ કરો</button>
+    <button onclick="showQuickSteps()">કેવી રીતે Allow કરવું?</button>
+    <div id="geo-steps" style="display:none;margin-top:10px;">
+      <p><strong>Android Chrome:</strong> 🔒 Lock icon → Site settings → Location → Allow</p>
+      <p><strong>iPhone Safari:</strong> ⚙️ Settings → Privacy → Location Services → Safari Websites → While Using</p>
+      <p><strong>Desktop Chrome:</strong> 🔒 Lock icon → Site settings → Location → Allow</p>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    function showQuickSteps(){
+      document.getElementById('geo-steps').style.display='block';
+    }
+
+    function initMap(lat, lon){
+      const mapDiv = document.getElementById('map');
+      const map = new google.maps.Map(mapDiv, {
+        center: { lat: lat, lng: lon },
+        zoom: 15
+      });
+      new google.maps.Marker({
+        position: { lat: lat, lng: lon },
+        map: map,
+        title: "Your Location 📍"
+      });
+    }
+
+    function tryGetLocation(){
+      if(!navigator.geolocation){
+        alert('Geolocation not supported in this browser.');
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          document.getElementById('geo-help').style.display='none';
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          initMap(lat, lon);
+        },
+        err => {
+          console.warn('Location error:', err);
+          if(err.code === err.PERMISSION_DENIED){
+            document.getElementById('geo-msg').innerText =
+              'તમે આ સાઇટ માટે Location બ્લોક કરી દીધું છે. કૃપા કરીને "Allow" કરો.';
+            document.getElementById('geo-help').style.display='block';
+          } else {
+            document.getElementById('geo-msg').innerText = 'Error: ' + err.message;
+            document.getElementById('geo-help').style.display='block';
+          }
+        }
+      );
+    }
+    tryGetLocation();
+  </script>
+
+  <!-- ✅ તમારા API Key અહીં નાખો -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ79Ko-HXM4Tt5S3ZW1s5naMVdnlHo83c"></script>
+</body>
+</html>
