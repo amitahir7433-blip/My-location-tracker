@@ -1,49 +1,41 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Live Location Tracker</title>
-    <style>
-      #map {
-        height: 100vh;
-        width: 100%;
-      }
-    </style>
-    <!-- અહીં તારી key નાખવી છે 👇 -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ79Ko-HXM4Tt5S3ZW1s5naMVdnlHo83c"></script>
-  </head>
-  <body>
-    <h2 style="text-align:center;">My Live Location Tracker 🌍</h2>
-    <div id="map"></div>
+<!-- Permission-help snippet: paste inside <body> near top -->
+<div id="geo-help" style="padding:12px;background:#fff3cd;border:1px solid #ffeeba;border-radius:8px;max-width:720px;margin:12px auto;display:none;">
+  <strong>Permission જોઈએછે</strong>
+  <p id="geo-msg">આ સાઇટ માટે Location allow કરો — જુઓ નીચે સૂચનો.</p>
+  <button onclick="window.location.reload()" style="margin-right:8px;">Try Again</button>
+  <button onclick="showQuickSteps()">How to Allow</button>
+  <div id="geo-steps" style="margin-top:10px;display:none;">
+    <p><strong>Android Chrome:</strong> Lock icon → Site settings → Location → Allow</p>
+    <p><strong>iPhone Safari:</strong> Settings → Privacy → Location Services → Safari Websites → While Using</p>
+    <p><strong>Desktop Chrome:</strong> Lock icon → Site settings → Location → Allow</p>
+  </div>
+</div>
 
-    <script>
-      function initMap(lat, lng) {
-        const myLocation = { lat: lat, lng: lng };
-        const map = new google.maps.Map(document.getElementById("map"), {
-          zoom: 15,
-          center: myLocation,
-        });
-        new google.maps.Marker({
-          position: myLocation,
-          map: map,
-          title: "You are here!",
-        });
-      }
+<script>
+function showQuickSteps(){ document.getElementById('geo-steps').style.display='block'; }
 
-      function showPosition(position) {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        initMap(lat, lng);
-      }
-
-      function showError(error) {
-        alert("Error: " + error.message);
-      }
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition, showError);
+function tryGetLocation(){
+  if(!navigator.geolocation){
+    alert('Geolocation supported? No.');
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      // success: hide help
+      document.getElementById('geo-help').style.display='none';
+      // your existing logic to show map/coords
+      console.log('got position', pos);
+    },
+    err => {
+      if(err.code === err.PERMISSION_DENIED){
+        document.getElementById('geo-msg').innerText = 'You have blocked location for this site. Please allow it in your browser settings.';
+        document.getElementById('geo-help').style.display = 'block';
       } else {
-        alert("Geolocation is not supported by this browser.");
+        document.getElementById('geo-msg').innerText = 'Location error: ' + err.message;
+        document.getElementById('geo-help').style.display = 'block';
       }
-    </script>
-  </body>
-</html>
+    }
+  );
+}
+tryGetLocation();
+</script>
